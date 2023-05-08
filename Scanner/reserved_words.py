@@ -52,6 +52,12 @@ reserved_words = {
     "boolean": TokenType.BooleanKeyword,
     "char": TokenType.CharKeyword,
     "integer": TokenType.IntegerKeyword,
-    "forward": TokenType.ForwardKeyword
+    "forward": TokenType.ForwardKeyword,
+    "not": TokenType.NotKeyword,
+    "and": TokenType.AndKeyword,
+    "or": TokenType.OrKeyword,
+    "in": TokenType.InKeyword,
+    "div": TokenType.DivKeyword,
+    "mod": TokenType.ModKeyword,
 }
 

@@ -3,7 +3,6 @@ from token_types import TokenType
 
 operators = {
     "~": TokenType.BitwiseNot,
-    "not": TokenType.NotKeyword,
     "*": TokenType.MultiplyOp,
     "/": TokenType.DivideOp,
     "+": TokenType.AddOp,
@@ -14,14 +13,9 @@ operators = {
     "<": TokenType.LessThanOp,
     ">=": TokenType.GreaterThanOrEqualOp,
     "<=": TokenType.LessThanOrEqualOp,
-    "and": TokenType.AndKeyword,
-    "or": TokenType.OrKeyword,
     "&": TokenType.BitwiseAnd,
     "|": TokenType.BitwiseOrVerticalBar,
     "!": TokenType.BitwiseOrExclamationMark,
-    "in": TokenType.InKeyword,
-    "div": TokenType.DivKeyword,
-    "mod": TokenType.ModKeyword,
     ":=": TokenType.AssignmentOp,
     "{": TokenType.OpenBraces,
     "}": TokenType.CloseBraces,
