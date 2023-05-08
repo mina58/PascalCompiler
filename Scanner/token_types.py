@@ -82,9 +82,11 @@ class TokenType(Enum):
     WritelnKeyword = 78
     StringKeyword = 79
     DoubleQuotations = 80 # "
-    ForwardSlash = 81 # /
-    SingleQuotations = 82 # '
-    Identifier = 83
-    IntegerConstant = 84
-    RealConstant = 85
-    EndKeyword = 86
+    SingleQuotations = 81 # '
+    Identifier = 82
+    IntegerConstant = 83
+    RealConstant = 84
+    EndKeyword = 85
+    OpenBraces = 86 # {
+    CloseBraces = 87 # }
+    Error = 88

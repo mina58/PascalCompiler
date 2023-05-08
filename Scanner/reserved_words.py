@@ -2,12 +2,10 @@ from token_types import TokenType
 
 
 reserved_words = {
-    "and": TokenType.AndKeyword,
     "array": TokenType.ArrayKeyword,
     "begin": TokenType.BeginKeyword,
     "case": TokenType.CaseKeyword,
     "const": TokenType.ConstKeyword,
-    "div": TokenType.DivKeyword,
     "do": TokenType.DoKeyword,
     "downto": TokenType.DowntoKeyword,
     "else": TokenType.ElseKeyword,
@@ -18,14 +16,10 @@ reserved_words = {
     "function": TokenType.FunctionKeyword,
     "goto": TokenType.GotoKeyword,
     "if": TokenType.IfKeyword,
-    "in": TokenType.InKeyword,
     "label": TokenType.LabelKeyword,
     "main": TokenType.MainKeyword,
-    "mod": TokenType.ModKeyword,
     "nil": TokenType.NilKeyword,
-    "not": TokenType.NotKeyword,
     "of": TokenType.OfKeyword,
-    "or": TokenType.OrKeyword,
     "packed": TokenType.PackedKeyword,
     "procedure": TokenType.ProcedureKeyword,
     "program": TokenType.ProgramKeyword,
@@ -58,4 +52,6 @@ reserved_words = {
     "boolean": TokenType.BooleanKeyword,
     "char": TokenType.CharKeyword,
     "integer": TokenType.IntegerKeyword,
+    "forward": TokenType.ForwardKeyword
 }
+
