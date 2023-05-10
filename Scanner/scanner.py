@@ -14,6 +14,7 @@ class Scanner:
         # in some cases there are no space between the operators and the identifiers so we will use this regex to scan
         # for the operators
         self.__operators_regex = "(\~|\*|\/|\+|\-|\=|\<\>|\>|\>\=|\<|\<=|\&|\||\!|\:\=|\{|\}|\(|\)|\[|\]|\,|\;|\:|\"|\')"
+        self.__comments_regex = '\{.*\}|\{\*(.|\n)*\*\}'
 
     
     def __identify_lexeme_type(self, lexeme: str) -> TokenType:
@@ -33,6 +34,10 @@ class Scanner:
 
 
     def scan(self, source_code: str) -> list:
+
+        # remove all the comments from the source_code
+        source_code = re.sub(self.__comments_regex, " ", source_code)
+
         # pascal is case insensitive so we first lower all the code and then split the text
         lexemes = source_code.lower().split()
         tokens_stream = []
@@ -54,4 +59,3 @@ class Scanner:
                 tokens_stream.append(token)
 
         return tokens_stream
-    
