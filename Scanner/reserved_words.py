@@ -1,4 +1,4 @@
-from token_types import TokenType
+from .token_types import TokenType
 
 
 reserved_words = {
