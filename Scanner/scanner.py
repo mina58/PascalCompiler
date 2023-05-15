@@ -42,7 +42,7 @@ class Scanner:
         string_tokens = []
 
         for string in strings:
-            token = Token(string, TokenType.String)
+            token = Token(string, TokenType.StringConstant)
             string_tokens.append(token)
 
         return string_tokens
@@ -54,7 +54,7 @@ class Scanner:
         # remove all the comments from the source_code
         source_code = re.sub(self.__comments_regex, " ", source_code)
 
-        # pascal is case insensitive so we first lower all the code and then split the text
+        # pascal is case-insensitive, so we first lower all the code and then split the text
         source_code = source_code.lower()
 
         # split the source code on the operators and the spaces but only keep the operators

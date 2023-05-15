@@ -59,5 +59,6 @@ reserved_words = {
     "in": TokenType.InKeyword,
     "div": TokenType.DivKeyword,
     "mod": TokenType.ModKeyword,
+    "uses": TokenType.UsesKeyword
 }
 

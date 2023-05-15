@@ -69,7 +69,7 @@ class ScannerTest(unittest.TestCase):
         """
         scanner = Scanner()
         result = scanner.scan(source_code)
-        expected = Token("'this is a string'", TokenType.String)
+        expected = Token("'this is a string'", TokenType.StringConstant)
         self.assertEqual(result[0], expected, result[0])
         
     
@@ -81,7 +81,7 @@ class ScannerTest(unittest.TestCase):
         token_1 = Token('string', TokenType.StringKeyword)
         token_2 = Token('s', TokenType.Identifier)
         token_3 = Token(':=', TokenType.AssignmentOp)
-        token_4 = Token("'this is a string'", TokenType.String)
+        token_4 = Token("'this is a string'", TokenType.StringConstant)
         result = scanner.scan(source_code)
         expected = [token_1, token_2, token_3, token_4]
         for _ in range(len(expected)):
