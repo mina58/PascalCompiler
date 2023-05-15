@@ -89,5 +89,6 @@ class TokenType(Enum):
     EndKeyword = 85
     OpenBraces = 86 # {
     CloseBraces = 87 # }
-    String = 88
+    StringConstant = 88
     Error = 89
+    UsesKeyword = 90
