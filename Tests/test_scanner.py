@@ -34,6 +34,20 @@ class ScannerTest(unittest.TestCase):
             self.assertEqual(result[_], expected[_], f"token: {result[_]}, expected: {expected[_]}")
             
             
+    def test_greater_than_or_equal_no_space(self):
+        source_code = "b>=a+c"
+        scanner = Scanner()
+        result = scanner.scan(source_code)
+        token_1 = Token('b', TokenType.Identifier)
+        token_2 = Token('>=', TokenType.GreaterThanOrEqualOp)
+        token_3 = Token('a', TokenType.Identifier)
+        token_4 = Token('+', TokenType.AddOp)
+        token_5 = Token('c', TokenType.Identifier)
+        expected = [token_1, token_2, token_3, token_4, token_5]
+        for _ in range(len(expected)):
+            self.assertEqual(result[_], expected[_], f"token: {result[_]}, expected: {expected[_]}")
+            
+            
     def test_single_line_comments(self):
         source_code ="""
         {this is a comment}
