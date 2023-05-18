@@ -90,5 +90,8 @@ class TokenType(Enum):
     OpenBraces = 86 # {
     CloseBraces = 87 # }
     StringConstant = 88
-    Error = 89
-    UsesKeyword = 90
+    UsesKeyword = 89
+    Error = 90
+
+
+token_types_map = {token.value: token.name for token in TokenType}

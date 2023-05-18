@@ -1,12 +1,10 @@
-from Scanner import token_types , reserved_words , token , operators
-from Scanner.token import Token
-from Scanner.token_types import TokenType
+from Scanner.token_types import TokenType, token_types_map
 from nltk.tree import *
 from Scanner.scanner import Scanner
 
-
+scanner = Scanner()
 text = input("Enter Code:")
-Tokens = Scanner.scan(text)
+Tokens = scanner.scan(text)
 errors = []
 
 
@@ -17,6 +15,8 @@ def Parse():
     Children.append(program_output["node"])
 
     Node=Tree('Program',Children)
+
+    return Node
 
 
 def Program(pointer):
@@ -73,7 +73,7 @@ def Declaration(pointer):
     function_declaration_output = FunctionsDeclaration(variable_declaration_output['index'])
     children.append(function_declaration_output['node'])
 
-    procedure_declaration_output = ProcedureDeclaration(function_declaration_output['index'])
+    procedure_declaration_output = ProceduresDeclaration(function_declaration_output['index'])
     children.append(procedure_declaration_output['node'])
 
     Node = Tree('Declaration', children)
@@ -370,7 +370,16 @@ def VariablesDefinition(pointer):
     identifiers_list_output = IdentifiersList(pointer)
     children.append(identifiers_list_output['node'])
 
-    variable_definition_prime_output = VariablesDefinitionPrime(identifiers_list_output['index'])
+    colon_output = Match(TokenType.Colon , identifiers_list_output['index'])
+    children.append(colon_output['node'])
+
+    data_type_output = DataType(colon_output['index'])
+    children.append(data_type_output['node'])
+
+    semicolon_output = Match(TokenType.SemiColon , data_type_output['index'])
+    children.append(semicolon_output['node'])
+
+    variable_definition_prime_output = VariablesDefinitionPrime(semicolon_output['index'])
     children.append(variable_definition_prime_output['node'])
 
     Node = Tree('Variable Definition', children)
@@ -385,29 +394,16 @@ def VariablesDefinitionPrime(pointer):
 
     current = Tokens[pointer].to_dict()
 
-    if current['type'] == TokenType.Colon:
-        colon_output = Match(TokenType.Colon , pointer)
-        children.append(colon_output)
-
-        data_type_output = DataType(colon_output['index'])
-        children.append(data_type_output['node'])
-
-        semicolon_output = Match(TokenType.SemiColon , data_type_output['index'])
-        children.append(semicolon_output['node'])
-
-        variable_definition_prime_output = VariablesDefinition(semicolon_output['index'])
+    if current['type'] == TokenType.Identifier:
+        variable_definition_prime_output = VariablesDefinition(pointer)
         children.append(variable_definition_prime_output['node'])
 
     else:
-        equal_output = Match(TokenType.EqualToOp , pointer)
-        children.append(equal_output['node'])
-
-        variable_definition_prime_output = DataType(equal_output['index'])
-        children.append(variable_definition_prime_output['node'])
+        variable_definition_prime_output = None
 
     Node = Tree('Variables Definition Prime', children)
     output["node"] = Node
-    output["index"] = variable_definition_prime_output["index"]
+    output["index"] = variable_definition_prime_output["index"] if variable_definition_prime_output else pointer
 
     return output
 
@@ -586,29 +582,614 @@ def Block(pointer):
     return output
 
 def StatementList(pointer):
-    pass
+    output = dict()
+    children = []
 
-def ProcedureDeclaration(pointer):
-    pass
+    statement_output = Statement(pointer)
+    children.append(statement_output['node'])
 
+    statement_list_prime_output = StatementListPrime(statement_output['index'])
+    children.append(statement_list_prime_output['node'])
+
+    Node = Tree('Statement List', children)
+    output["node"] = Node
+    output["index"] = statement_list_prime_output["index"]
+
+    return output
+
+def StatementListPrime(pointer):
+    output = dict()
+    children = []
+
+    current = Tokens[pointer].to_dict()
+
+    if current['type'] in [TokenType.Identifier , TokenType.IfKeyword , TokenType.ForKeyword , TokenType.RepeatKeyword,
+                           TokenType.ReadKeyword , TokenType.ReadlnKeyword , TokenType.WriteKeyword , TokenType.WritelnKeyword]:
+        statement_list_prime_output = StatementList(pointer)
+        children.append(statement_list_prime_output['node'])
+
+    else:
+        statement_list_prime_output = None
+
+    Node = Tree('Statement List Prime', children)
+    output["node"] = Node
+    output["index"] = statement_list_prime_output["index"] if statement_list_prime_output else pointer
+
+    return output
+
+def Statement(pointer):
+    output = dict()
+    children = []
+
+    current = Tokens[pointer].to_dict()
+
+    if current['type'] == TokenType.Identifier:
+        statement_output = Assignment(pointer)
+
+    elif current['type'] == TokenType.IfKeyword:
+        statement_output = IfStatement(pointer)
+
+    elif current['type'] == TokenType.ForKeyword:
+        statement_output = ForLoop(pointer)
+
+    elif current['type'] == TokenType.RepeatKeyword:
+        statement_output = Repeat(pointer)
+
+    else: #else it is a procedure call
+        statement_output = ProcedureCall(pointer)
+
+    children.append(statement_output['node'])
+
+    Node = Tree('Statement', children)
+    output["node"] = Node
+    output["index"] = statement_output["index"]
+
+    return output
+
+
+def Assignment(pointer):
+    output = dict()
+    children = []
+
+    identifier_output = Match(TokenType.Identifier , pointer)
+    children.append(identifier_output['node'])
+
+    assignment_operator_output = Match(TokenType.AssignmentOp , identifier_output['index'])
+    children.append(assignment_operator_output['node'])
+
+    expression_output = Expression(assignment_operator_output['index'])
+    children.append(expression_output['node'])
+
+    Node = Tree('Assignment Statement', children)
+    output["node"] = Node
+    output["index"] = expression_output["index"]
+
+    return output
+
+def IfStatement(pointer):
+    output = dict()
+    children = []
+
+    if_output = Match(TokenType.IfKeyword , pointer)
+    children.append(if_output['node'])
+
+    boolean_expression_output = BooleanExpression(if_output['index'])
+    children.append(boolean_expression_output['node'])
+
+    then_output = Match(TokenType.ThenKeyword , boolean_expression_output['index'])
+    children.append(then_output['node'])
+
+    if_prime_output = IfStatementPrime(then_output['index'])
+    children.append(if_prime_output['node'])
+
+    Node = Tree('IF Statement', children)
+    output["node"] = Node
+    output["index"] = if_prime_output["index"]
+
+    return output
+
+def IfStatementPrime(pointer):
+    output = dict()
+    children = []
+
+    statement_or_block_output = StatementOrBlock(pointer)
+    children.append(statement_or_block_output['node'])
+
+    if_double_prime_output = IfStatementDoublePrime(statement_or_block_output['index'])
+    children.append(if_double_prime_output['node'])
+
+    Node = Tree('IF Statement Prime', children)
+    output["node"] = Node
+    output["index"] = if_double_prime_output["index"]
+
+    return output
+
+def IfStatementDoublePrime(pointer):
+    output = dict()
+    children = []
+
+    current = Tokens[pointer].to_dict()
+
+    if current['type'] == TokenType.ElseKeyword:
+        else_output = Match(TokenType.ElseKeyword , pointer)
+        children.append(else_output['node'])
+
+        final_output = StatementOrBlock(else_output['index'])
+        children.append(final_output['node'])
+
+    else:
+        final_output = None
+
+    Node = Tree('IF Statement Double Prime', children)
+    output["node"] = Node
+    output["index"] = final_output["index"] if final_output else pointer
+
+    return output
+
+
+def StatementOrBlock(pointer):
+    output = dict()
+    children = []
+
+    current = Tokens[pointer].to_dict()
+
+    if current['type'] == TokenType.BeginKeyword:
+        current_output = Block(pointer)
+
+    else:
+        current_output = Statement(pointer)
+
+    children.append(current_output['node'])
+    Node = Tree('Statement or Block', children)
+    output["node"] = Node
+    output["index"] = current_output["index"]
+
+    return output
+
+def ForLoop(pointer):
+    output = dict()
+    children = []
+
+    for_output = Match(TokenType.ForKeyword , pointer)
+    children.append(for_output['node'])
+
+    identifier_output = Match(TokenType.Identifier , for_output['index'])
+    children.append(identifier_output['node'])
+
+    assignment_output = Match(TokenType.AssignmentOp , identifier_output['index'])
+    children.append(assignment_output['node'])
+
+    expression1_output = Expression(assignment_output['index'])
+    children.append(expression1_output['node'])
+
+    to_output = Match(TokenType.ToKeyword , expression1_output['index'])
+    children.append(to_output['node'])
+
+    expression2_output = Expression(assignment_output['index'])
+    children.append(expression2_output['node'])
+
+    do_output = Match(TokenType.DoKeyword , expression2_output['index'])
+    children.append(do_output['node'])
+
+    statement_or_block_output = StatementOrBlock(do_output['index'])
+    children.append(statement_or_block_output['node'])
+
+    Node = Tree('For Loop', children)
+    output["node"] = Node
+    output["index"] = statement_or_block_output["index"]
+
+    return output
+
+def Repeat(pointer):
+    output = dict()
+    children = []
+
+    repeat_output = Match(TokenType.RepeatKeyword , pointer)
+    children.append(repeat_output['node'])
+
+    statement_list_output = StatementList(repeat_output['index'])
+    children.append(statement_list_output['node'])
+
+    until_output = Match(TokenType.UntilKeyword , statement_list_output['index'])
+    children.append(until_output['node'])
+
+    boolean_expression_output = BooleanExpression(until_output['index'])
+    children.append(boolean_expression_output['node'])
+
+    Node = Tree('Repeat', children)
+    output["node"] = Node
+    output["index"] = boolean_expression_output["index"]
+
+    return output
+
+def BooleanExpression(pointer):
+    output = dict()
+    children = []
+
+    expression1_output = Expression(pointer)
+    children.append(expression1_output['node'])
+
+    relational_operator_output = RelationalOperator(expression1_output['index'])
+    children.append(relational_operator_output['node'])
+
+    expression2_output = Expression(relational_operator_output['index'])
+    children.append(expression2_output['node'])
+
+    Node = Tree('Boolean Expression', children)
+    output["node"] = Node
+    output["index"] = expression2_output["index"]
+
+    return output
+
+def RelationalOperator(pointer):
+    output = dict()
+    children = []
+
+    current = Tokens[pointer].to_dict()
+
+    if current['type'] == TokenType.EqualToOp:
+        relational_operator_output = Match(TokenType.EqualToOp , pointer)
+
+    elif current['type'] == TokenType.NotEqualToOp:
+        relational_operator_output = Match(TokenType.NotEqualToOp , pointer)
+
+    elif current['type'] == TokenType.LessThanOp:
+        relational_operator_output = Match(TokenType.LessThanOp , pointer)
+
+    elif current['type'] == TokenType.GreaterThanOp:
+        relational_operator_output = Match(TokenType.GreaterThanOp , pointer)
+
+    elif current['type'] == TokenType.LessThanOrEqualOp:
+        relational_operator_output = Match(TokenType.LessThanOrEqualOp , pointer)
+
+    else:
+        relational_operator_output = Match(TokenType.GreaterThanOrEqualOp , pointer)
+
+    children.append(relational_operator_output['node'])
+    Node = Tree('Relational Operator', children)
+    output["node"] = Node
+    output["index"] = relational_operator_output["index"]
+
+    return output
+
+def ProcedureCall(pointer):
+    output = dict()
+    children = []
+
+    current = Tokens[pointer].to_dict()
+
+    if current['type'] == TokenType.Identifier:
+        first_output = Match(TokenType.Identifier , pointer)
+
+    elif current['type'] == TokenType.ReadKeyword:
+        first_output = Match(TokenType.ReadKeyword , pointer)
+
+    elif current['type'] == TokenType.ReadlnKeyword:
+        first_output = Match(TokenType.ReadlnKeyword , pointer)
+
+    elif current['type'] == TokenType.WritelnKeyword:
+        first_output = Match(TokenType.WritelnKeyword , pointer)
+
+    else:
+        first_output = Match(TokenType.WriteKeyword , pointer)
+
+    open_parenthesis_output = Match(TokenType.OpenParenthesis , first_output['index'])
+    children.append(open_parenthesis_output['node'])
+
+    expression_list_output = ExpressionList(open_parenthesis_output['index'])
+    children.append(expression_list_output['node'])
+
+    closed_parenthesis_output = Match(TokenType.CloseParenthesis , expression_list_output['index'])
+    children.append(closed_parenthesis_output['node'])
+
+    Node = Tree('Procedure Call', children)
+    output["node"] = Node
+    output["index"] = closed_parenthesis_output["index"]
+
+    return output
+
+def ProceduresDeclaration(pointer):
+    output = dict()
+    children = []
+
+    current = Tokens[pointer].to_dict()
+
+    if current['type'] == TokenType.ProcedureKeyword:
+        one_procedure_declaration_output = OneProcedureDeclaration(pointer)
+        children.append(one_procedure_declaration_output['node'])
+
+        semicolon_output = Match(TokenType.SemiColon , one_procedure_declaration_output['index'])
+        children.append(semicolon_output['node'])
+
+        procedures_declaration_output = ProceduresDeclaration(semicolon_output['index'])
+        children.append(procedures_declaration_output['node'])
+
+    else:
+        procedures_declaration_output = None
+
+    Node = Tree('Procedures Declaration', children)
+    output["node"] = Node
+    output["index"] = procedures_declaration_output["index"] if procedures_declaration_output else pointer
+
+    return output
+
+def OneProcedureDeclaration(pointer):
+    output = dict()
+    children = []
+
+    procedure_output = Match(TokenType.ProcedureKeyword , pointer)
+    children.append(procedure_output['node'])
+
+    identifier_output = Match(TokenType.Identifier , procedure_output['index'])
+    children.append(identifier_output['node'])
+
+    parameters_output = Parameters(identifier_output['index'])
+    children.append(parameters_output['node'])
+
+    semicolon_output = Match(TokenType.SemiColon , parameters_output['index'])
+    children.append(semicolon_output['node'])
+
+    block_output = Block(semicolon_output['index'])
+    children.append(block_output['node'])
+
+    Node = Tree('One Procedure Declaration', children)
+    output["node"] = Node
+    output["index"] = block_output["index"]
+
+    return output
 def Execution(pointer):
-    pass
+    output = dict()
+    children = []
+
+    block_output = Block(pointer)
+    children.append(block_output['node'])
+
+    dot_output = Match(TokenType.Dot , block_output['index'])
+    children.append(dot_output['node'])
+
+    Node = Tree('Execution', children)
+    output["node"] = Node
+    output["index"] = dot_output["index"]
+
+    return output
+
+
+def Expression(pointer):
+    output = dict()
+    children = []
+
+    term_output = Term(pointer)
+    children.append(term_output['node'])
+
+    expression_prime_output = ExpressionPrime(term_output['index'])
+    children.append(expression_prime_output['node'])
+
+    Node = Tree('Expression', children)
+    output["node"] = Node
+    output["index"] = expression_prime_output["index"]
+
+    return output
+
+def ExpressionPrime(pointer):
+    output = dict()
+    children = []
+
+    current = Tokens[pointer].to_dict()
+
+    if current['type'] == TokenType.AddOp:
+        add_op_output = Match(TokenType.AddOp , pointer)
+        children.append(add_op_output['node'])
+
+        term_output = Term(add_op_output['index'])
+        children.append(term_output['node'])
+
+        expression_prime_output = ExpressionPrime(term_output['index'])
+        children.append(expression_prime_output['node'])
+
+    elif current['type'] == TokenType.SubtractOp:
+        sub_op_output = Match(TokenType.SubtractOp , pointer)
+        children.append(sub_op_output['node'])
+
+        term_output = Term(sub_op_output['index'])
+        children.append(sub_op_output['node'])
+
+        expression_prime_output = ExpressionPrime(term_output['index'])
+        children.append(expression_prime_output['node'])
+
+    else:
+        expression_prime_output = None
+
+    Node = Tree('Expression Prime', children)
+    output["node"] = Node
+    output["index"] = expression_prime_output["index"] if expression_prime_output else pointer
+
+    return output
+
+def Term(pointer):
+    output = dict()
+    children = []
+
+    factor_output = Factor(pointer)
+    children.append(factor_output['node'])
+
+    term_prime_output = TermPrime(factor_output['index'])
+    children.append(term_prime_output['node'])
+
+    Node = Tree('Term', children)
+    output["node"] = Node
+    output["index"] = term_prime_output["index"]
+
+    return output
+
+def TermPrime(pointer):
+    output = dict()
+    children = []
+
+    current = Tokens[pointer].to_dict()
+
+    if current['type'] == TokenType.MultiplyOp:
+        operator_output = Match(TokenType.MultiplyOp , pointer)
+        children.append(operator_output['node'])
+
+        factor_output = Factor(operator_output['index'])
+        children.append(factor_output['node'])
+
+        term_prime_output = TermPrime(factor_output['index'])
+        children.append(term_prime_output['node'])
+
+    elif current['type'] == TokenType.DivideOp:
+        operator_output = Match(TokenType.DivideOp, pointer)
+        children.append(operator_output['node'])
+
+        factor_output = Factor(operator_output['index'])
+        children.append(factor_output['node'])
+
+        term_prime_output = TermPrime(factor_output['index'])
+        children.append(term_prime_output['node'])
+
+    else:
+        term_prime_output = None
+
+    Node = Tree('Term Prime', children)
+    output["node"] = Node
+    output["index"] = term_prime_output["index"] if term_prime_output else pointer
+
+    return output
+
+def Factor(pointer):
+    output = dict()
+    children = []
+
+    current = Tokens[pointer].to_dict()
+
+    if current['type'] == TokenType.Identifier:
+        identifier_output = Match(TokenType.Identifier , pointer)
+        children.append(identifier_output['node'])
+
+        final_output = FactorPrime(identifier_output['index'])
+        children.append(final_output['node'])
+
+    elif current['type'] == TokenType.OpenParenthesis:
+        open_parenthesis_output = Match(TokenType.OpenParenthesis , pointer)
+        children.append(open_parenthesis_output['node'])
+
+        expression_output = Expression(open_parenthesis_output['index'])
+        children.append(expression_output['node'])
+
+        final_output = Match(TokenType.CloseParenthesis , expression_output['index'])
+        children.append(final_output['node'])
+
+    else:
+        final_output = Number(pointer)
+        children.append(final_output['node'])
+
+    Node = Tree('Factor', children)
+    output["node"] = Node
+    output["index"] = final_output["index"]
+
+    return output
+
+def FactorPrime(pointer):
+    output = dict()
+    children = []
+
+    current = Tokens[pointer].to_dict()
+
+    if current['type'] == TokenType.OpenParenthesis:
+        open_parenthesis_output = Match(TokenType.OpenParenthesis, pointer)
+        children.append(open_parenthesis_output['node'])
+
+        expression_list_output = ExpressionList(open_parenthesis_output['index'])
+        children.append(expression_list_output['node'])
+
+        final_output = Match(TokenType.CloseParenthesis, expression_list_output['index'])
+        children.append(final_output['node'])
+
+    else:
+        final_output = None
+
+    Node = Tree('Factor Prime', children)
+    output["node"] = Node
+    output["index"] = final_output["index"] if final_output else pointer
+
+    return output
+
+def Number(pointer):
+    output = dict()
+    children = []
+
+    current = Tokens[pointer].to_dict()
+
+    if current['type'] == TokenType.IntegerConstant:
+        final_output = Match(TokenType.IntegerConstant , pointer)
+    else:
+        final_output = Match(TokenType.RealConstant , pointer)
+
+    children.append(final_output['node'])
+
+    Node = Tree('Number', children)
+    output["node"] = Node
+    output["index"] = final_output["index"]
+
+    return output
+
+
+def ExpressionList(pointer):
+    output = dict()
+    children = []
+
+    expression_output = Expression(pointer)
+    children.append(expression_output['node'])
+
+    expression_list_prime_output = ExpressionListPrime(expression_output['index'])
+    children.append(expression_list_prime_output['node'])
+
+    Node = Tree('Expression List', children)
+    output["node"] = Node
+    output["index"] = expression_list_prime_output["index"]
+
+    return output
+
+def ExpressionListPrime(pointer):
+    output = dict()
+    children = []
+
+    current = Tokens[pointer].to_dict()
+
+    if current['type'] == TokenType.Comma:
+        comma_output = Match(TokenType.Comma , pointer)
+        children.append(comma_output['node'])
+
+        expression_output = Expression(comma_output['index'])
+        children.append(expression_output['node'])
+
+        expression_list_prime_output = ExpressionListPrime(expression_output['index'])
+        children.append(expression_list_prime_output['node'])
+
+    else:
+        expression_list_prime_output = None
+
+    Node = Tree('Expression List Prime', children)
+    output["node"] = Node
+    output["index"] = expression_list_prime_output["index"] if expression_list_prime_output else pointer
+
+    return output
 
 
 ########################################################################################
-def Match(a, pointer):
+def Match(current_token_type, pointer):
     output = dict()
     if pointer < len(Tokens):
         temp = Tokens[pointer].to_dict()
-        if temp['token_type'] == a:
+        if temp['type'] == current_token_type:
             pointer += 1
-            output["node"] = [temp['Lex']]
+            output["node"] = [temp['lexeme']]
             output["index"] = pointer
             return output
         else:
             output["node"] = ["error"]
             output["index"] = pointer + 1
-            errors.append("Syntax error : " + temp['Lex'] + " Expected dot")
+            errors.append("Syntax error : " + temp['lexeme'] + "Expected " + token_types_map[current_token_type] )
             return output
     else:
         output["node"] = ["error"]
