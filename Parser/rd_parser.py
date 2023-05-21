@@ -712,12 +712,16 @@ class RDParser:
             return output
         current = self.tokens[pointer].as_dict()
 
-        if current['type'] == TokenType.Identifier:
+        if current['type'] in [TokenType.ReadKeyword , TokenType.ReadlnKeyword , TokenType.WriteKeyword , TokenType.WritelnKeyword]:
+            statement_output = self.procedure_call(pointer)
+        elif current['type'] == TokenType.Identifier:
             next_token = self.tokens[pointer + 1].as_dict()
             if next_token['type'] == TokenType.OpenParenthesis:
                 statement_output = self.procedure_call(pointer)
-            else:
+            elif next_token['type'] == TokenType.AssignmentOp:
                 statement_output = self.assignment(pointer)
+            else:
+                return self.fail_match(TokenType.AssignmentOp,self.tokens[pointer].as_dict(),pointer)
 
         elif current['type'] == TokenType.IfKeyword:
             statement_output = self.if_statement(pointer)
@@ -725,8 +729,10 @@ class RDParser:
         elif current['type'] == TokenType.ForKeyword:
             statement_output = self.for_loop(pointer)
 
-        else:
+        elif current['type'] == TokenType.RepeatKeyword:
             statement_output = self.repeat(pointer)
+        else:
+            return self.fail_match(TokenType.Identifier,self.tokens[pointer].as_dict(),pointer)
 
         children.append(statement_output['node'])
 
@@ -750,9 +756,12 @@ class RDParser:
         expression_output = self.expression(assignment_operator_output['index'])
         children.append(expression_output['node'])
 
+        semicolon_output = self.match(TokenType.SemiColon , expression_output['index'])
+        children.append(semicolon_output['node'])
+
         Node = Tree('Assignment Statement', children)
         output["node"] = Node
-        output["index"] = expression_output["index"]
+        output["index"] = semicolon_output["index"]
 
         return output
 
@@ -898,9 +907,12 @@ class RDParser:
         boolean_expression_output = self.boolean_expression(until_output['index'])
         children.append(boolean_expression_output['node'])
 
+        semi_colon_output = self.match(TokenType.SemiColon , boolean_expression_output['index'])
+        children.append(semi_colon_output['node'])
+
         Node = Tree('Repeat', children)
         output["node"] = Node
-        output["index"] = boolean_expression_output["index"]
+        output["index"] = semi_colon_output["index"]
 
         return output
 
@@ -987,18 +999,23 @@ class RDParser:
         else:
             first_output = self.match(TokenType.WriteKeyword , pointer)
 
+        children.append(first_output['node'])
+
         open_parenthesis_output = self.match(TokenType.OpenParenthesis , first_output['index'])
         children.append(open_parenthesis_output['node'])
 
-        expression_list_output = self.expression_list(open_parenthesis_output['index'])
-        children.append(expression_list_output['node'])
+        argument_list_output = self.argument_list(open_parenthesis_output['index'])
+        children.append(argument_list_output['node'])
 
-        closed_parenthesis_output = self.match(TokenType.CloseParenthesis , expression_list_output['index'])
+        closed_parenthesis_output = self.match(TokenType.CloseParenthesis , argument_list_output['index'])
         children.append(closed_parenthesis_output['node'])
+
+        semi_colon_output = self.match(TokenType.SemiColon , closed_parenthesis_output['index'])
+        children.append(semi_colon_output['node'])
 
         Node = Tree('Procedure Call', children)
         output["node"] = Node
-        output["index"] = closed_parenthesis_output["index"]
+        output["index"] = semi_colon_output["index"]
 
         return output
 
@@ -1117,7 +1134,7 @@ class RDParser:
             children.append(sub_op_output['node'])
 
             term_output = self.term(sub_op_output['index'])
-            children.append(sub_op_output['node'])
+            children.append(term_output['node'])
 
             expression_prime_output = self.expression_prime(term_output['index'])
             children.append(expression_prime_output['node'])
@@ -1218,7 +1235,8 @@ class RDParser:
             children.append(final_output['node'])
 
         else:
-            final_output = self.number(pointer)
+            #final_output = self.number(pointer)
+            final_output = self.data_type_values(pointer)
             children.append(final_output['node'])
 
         Node = Tree('Factor', children)
@@ -1243,10 +1261,10 @@ class RDParser:
             open_parenthesis_output = self.match(TokenType.OpenParenthesis, pointer)
             children.append(open_parenthesis_output['node'])
 
-            expression_list_output = self.expression_list(open_parenthesis_output['index'])
-            children.append(expression_list_output['node'])
+            argument_list_output = self.argument_list(open_parenthesis_output['index'])
+            children.append(argument_list_output['node'])
 
-            final_output = self.match(TokenType.CloseParenthesis, expression_list_output['index'])
+            final_output = self.match(TokenType.CloseParenthesis, argument_list_output['index'])
             children.append(final_output['node'])
 
         else:
@@ -1331,6 +1349,25 @@ class RDParser:
 
         return output
 
+    def argument_list(self, pointer):
+        output = dict()
+        children = []
+
+        current = self.tokens[pointer].as_dict()
+
+        if current['type'] == TokenType.CloseParenthesis:
+            argument_list_output = None
+        else:
+            argument_list_output = self.expression_list(pointer)
+            children.append(argument_list_output['node'])
+
+
+        Node = Tree('Argument List', children)
+        output["node"] = Node
+        output["index"] = argument_list_output["index"] if argument_list_output else pointer
+
+        return output
+
 
     ########################################################################################
     def match(self, current_token_type, pointer):
@@ -1343,10 +1380,7 @@ class RDParser:
                 output["index"] = pointer
                 return output
             else:
-                output["node"] = ["error"]
-                output["index"] = pointer + 1
-                self.errors.append("Syntax error : " + temp['lexeme'] + "Expected " + token_types_map[current_token_type.value])
-                return output
+                return self.fail_match(current_token_type, temp, pointer)
         else:
             output["node"] = ["error"]
             output["index"] = pointer + 1
@@ -1371,5 +1405,12 @@ class RDParser:
         node.extend(children)
 
         return node
+
+    def fail_match(self, expected, actual, pointer):
+        output = dict()
+        output["node"] = ["error"]
+        output["index"] = pointer
+        self.errors.append("Syntax error : " + actual['lexeme'] + "Expected " + token_types_map[expected.value])
+        return output
 
     ########################################################################################
