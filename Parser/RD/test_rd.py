@@ -4,8 +4,7 @@ import nltk
 from nltk.draw import TreeWidget
 from nltk.draw.util import CanvasFrame
 
-from Parser.rd_parser import RDParser
-from nltk.tree import *
+from Parser.RD.rd_parser import RDParser
 from Scanner.scanner import Scanner
 
 import traceback
@@ -29,10 +28,9 @@ class ParserTest(unittest.TestCase):
         try:
             result = parser.parse()
             draw_nltk_tree(result)
+            result.pretty_print()
         except Exception as e:
             print(f"Exception occurred during parsing: {e}")
-
-
 
     def test_two_statements(self):
         source_code = "program test; begin a := b + c; x := y - z; end."
@@ -132,6 +130,110 @@ class ParserTest(unittest.TestCase):
             result.pretty_print()
         except Exception as e:
             print(f"Exception occurred during parsing: {e}")
+
+    def test_assignment_statement(self):
+        source_code = "program test; begin x := 10; end."
+        scanner = Scanner()
+        tokens = scanner.scan(source_code)
+        parser = RDParser(tokens)
+        try:
+            result = parser.parse()
+            draw_nltk_tree(result)
+            result.pretty_print()
+        except Exception as e:
+            print(f"Exception occurred during parsing: {e}")
+
+    def test_for_statement(self):
+        source_code = "program test; begin for i := 1 to 10 do writeln(i); end."
+        scanner = Scanner()
+        tokens = scanner.scan(source_code)
+        parser = RDParser(tokens)
+        try:
+            result = parser.parse()
+            draw_nltk_tree(result)
+            result.pretty_print()
+        except Exception as e:
+            print(f"Exception occurred during parsing: {e}")
+
+    def test_while_statement(self):
+        source_code = "program test; begin while x > 0 do begin x := x - 1; end; end."
+        scanner = Scanner()
+        tokens = scanner.scan(source_code)
+        parser = RDParser(tokens)
+        try:
+            result = parser.parse()
+            draw_nltk_tree(result)
+            result.pretty_print()
+        except Exception as e:
+            print(f"Exception occurred during parsing: {e}")
+
+    def test_nested_statements(self):
+        source_code = '''
+        program test;
+        var x, y, z: integer;
+        begin
+            x := 1;
+            if x = 1 then
+            begin
+                y := 2;
+                if y = 2 then
+                begin
+                    z := x + y;
+                    writeln(z);
+                end;
+            end;
+        end.
+        '''
+        scanner = Scanner()
+        tokens = scanner.scan(source_code)
+        parser = RDParser(tokens)
+        try:
+            result = parser.parse()
+            draw_nltk_tree(result)
+            result.pretty_print()
+        except Exception as e:
+            print(f"Exception occurred during parsing: {e}")
+
+    def test_and_keyword(self):
+        source_code = '''
+        program test;
+        begin
+            if a = 1 and b = 2 then
+            begin
+                x := 1;
+            end;
+        end.
+        '''
+        scanner = Scanner()
+        tokens = scanner.scan(source_code)
+        parser = RDParser(tokens)
+        try:
+            result = parser.parse()
+            draw_nltk_tree(result)
+            result.pretty_print()
+        except Exception as e:
+            print(f"Exception occurred during parsing: {e}")
+
+    def test_or_keyword(self):
+        source_code = '''
+        program test;
+        begin
+            if a = 1 or b = 2 then
+            begin
+                x := 1;
+            end;
+        end.
+        '''
+        scanner = Scanner()
+        tokens = scanner.scan(source_code)
+        parser = RDParser(tokens)
+        try:
+            result = parser.parse()
+            draw_nltk_tree(result)
+            result.pretty_print()
+        except Exception as e:
+            print(f"Exception occurred during parsing: {e}")
+
 
 if __name__ == '__main__':
     unittest.main()

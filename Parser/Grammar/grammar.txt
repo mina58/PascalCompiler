@@ -1,0 +1,55 @@
+Program -> Heading Declaration Execution $
+Heading -> Program identifier ;
+Declaration -> Uses Constant_Declarations Type_Declarations Variable_Declarations Functions_Declarations Procedures_Declarations
+Uses -> uses Identifiers_List ; | ~
+Identifiers_List -> identifier Identifiers_List_Prime
+Identifiers_List_Prime -> , Identifiers_List | ~
+Constant_Declarations -> const Constant_Definitions | ~
+Constant_Definitions -> identifier = Data_Type_Values ; Constant_Definitions_Prime
+Constant_Definitions_Prime -> Constant_Definitions | ~
+Data_Type_Values -> integer_constant | real_constant | character_constant | string_constant | true | false
+Type_Declarations -> type Type_Definitions | ~
+Type_Definitions -> identifier = Data_Type ; Type_Definitions_Prime
+Type_Definitions_Prime -> Type_Definitions | ~
+Data_Type -> integer | real | char | string | boolean | identifier
+Variable_Declarations -> var Variables_Definition | ~
+Variables_Definition -> Identifiers_List : Data_Type ; Variables_Definition_Prime
+Variables_Definition_Prime -> Variables_Definition | ~
+Functions_Declarations -> One_Function_Declaration ; Functions_Declarations | ~
+One_Function_Declaration -> function identifier Parameters : Data_Type ; Block
+Parameters -> ( Parameters_Prime
+Parameters_Prime -> Parameters_List ) | )
+Parameters_List -> Parameters_Definition Parameters_List_Prime
+Parameters_List_Prime -> ; Parameters_List | ~
+Parameters_Definition -> identifier : Data_Type
+Block -> begin Variable_Declarations Statement_List end
+Statement_List -> Statement Statement_List_Prime
+Statement_List_Prime -> Statement_List | ~
+Statement -> Assignment_Statement | IF_Statement | For_Loop | Repeat | While_Loop | Procedure_Call
+Assignment_Statement -> identifier := Expression ;
+IF_Statement -> if Boolean_Expression then IF_Statement_Prime Optional_Semicolon
+IF_Statement_Prime -> Statement_or_Block IF_Statement_Double_Prime
+IF_Statement_Double_Prime -> else Statement_or_Block | ~
+Statement_or_Block -> Statement | Block
+For_Loop -> for identifier := Expression to Expression do Statement_or_Block Optional_Semicolon
+Repeat -> repeat Statement_List until Boolean_Expression ;
+While_Loop -> while Boolean_Expression do Statement_or_Block Optional_Semicolon
+Optional_Semicolon -> ; | ~
+Boolean_Expression -> Logical_Expression Boolean_Expression_Double_Prime
+Boolean_Expression_Double_Prime -> Boolean_Expression_Prime Boolean_Expression_Double_Prime | ~
+Boolean_Expression_Prime -> and Boolean_Expression | or Boolean_Expression
+Logical_Expression -> Expression Relational_Operator Expression
+Relational_Operator -> = | <> | < | > | <= | >=
+Procedure_Call -> identifier ( Argument_List ) ; | read ( Argument_List ) ; | readln ( Argument_List ) ; | write ( Argument_List ) ; | writeln ( Argument_List ) ;
+Argument_List -> Expression_List | ~
+Procedures_Declarations -> One_Procedure_Declaration ; Procedures_Declarations | ~
+One_Procedure_Declaration -> procedure identifier Parameters ; Block
+Execution -> Block .
+Expression -> Term Expression_Prime
+Expression_Prime -> + Term Expression_Prime | - Term Expression_Prime | ~
+Term -> Factor Term_Prime
+Term_Prime -> * Factor Term_Prime | / Factor Term_Prime | ~
+Factor -> identifier Factor_Prime | ( Expression ) | Data_Type_Values
+Factor_Prime -> ( Argument_List ) | ~
+Expression_List -> Expression Expression_List_Prime
+Expression_List_Prime -> , Expression Expression_List_Prime | ~

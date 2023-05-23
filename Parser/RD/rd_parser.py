@@ -1,6 +1,7 @@
 from Scanner.token_types import TokenType, token_types_map
 from nltk.tree import *
 
+
 class RDParser:
     def __init__(self,tokens):
         self.tokens = tokens
@@ -564,7 +565,7 @@ class RDParser:
 
         else:
             parameter_list_output = self.parameters_list(pointer)
-            children.append(parameter_list_output)
+            children.append(parameter_list_output['node'])
 
             close_parenthesis_output = self.match(TokenType.CloseParenthesis, parameter_list_output['index'])
             children.append(close_parenthesis_output['node'])
@@ -731,6 +732,10 @@ class RDParser:
 
         elif current['type'] == TokenType.RepeatKeyword:
             statement_output = self.repeat(pointer)
+
+        elif current['type'] == TokenType.WhileKeyword:
+            statement_output = self.while_loop(pointer)
+
         else:
             return self.fail_match(TokenType.Identifier,self.tokens[pointer].as_dict(),pointer)
 
@@ -781,9 +786,12 @@ class RDParser:
         if_prime_output = self.if_statement_prime(then_output['index'])
         children.append(if_prime_output['node'])
 
+        optional_semicolon_output = self.optional_semi_colon(if_prime_output['index'])
+        children.append(optional_semicolon_output['node'])
+
         Node = Tree('IF Statement', children)
         output["node"] = Node
-        output["index"] = if_prime_output["index"]
+        output["index"] = optional_semicolon_output["index"]
 
         return output
 
@@ -876,7 +884,7 @@ class RDParser:
         to_output = self.match(TokenType.ToKeyword , expression1_output['index'])
         children.append(to_output['node'])
 
-        expression2_output = self.expression(assignment_output['index'])
+        expression2_output = self.expression(to_output['index'])
         children.append(expression2_output['node'])
 
         do_output = self.match(TokenType.DoKeyword , expression2_output['index'])
@@ -885,9 +893,12 @@ class RDParser:
         statement_or_block_output = self.statement_or_block(do_output['index'])
         children.append(statement_or_block_output['node'])
 
+        optional_semicolon_output = self.optional_semi_colon(statement_or_block_output['index'])
+        children.append(optional_semicolon_output['node'])
+
         Node = Tree('For Loop', children)
         output["node"] = Node
-        output["index"] = statement_or_block_output["index"]
+        output["index"] = optional_semicolon_output["index"]
 
         return output
 
@@ -916,7 +927,126 @@ class RDParser:
 
         return output
 
+    def while_loop(self, pointer):
+        output = dict()
+        children = []
+
+        while_output = self.match(TokenType.WhileKeyword , pointer)
+        children.append(while_output['node'])
+
+        boolean_expression_output = self.boolean_expression(while_output['index'])
+        children.append(boolean_expression_output['node'])
+
+        do_output = self.match(TokenType.DoKeyword , boolean_expression_output['index'])
+        children.append(do_output['node'])
+
+        statement_or_block_output = self.statement_or_block(do_output['index'])
+        children.append(statement_or_block_output['node'])
+
+        optional_semi_colon_output = self.optional_semi_colon(statement_or_block_output['index'])
+        children.append(optional_semi_colon_output['node'])
+
+        Node = Tree('While Loop', children)
+        output["node"] = Node
+        output["index"] = optional_semi_colon_output["index"]
+
+        return output
+
+
+    def optional_semi_colon(self, pointer):
+        output = dict()
+        children = []
+
+        if pointer >= len(self.tokens):
+            # Handle end of token list
+            output["node"] = ["error"]
+            output["index"] = pointer + 1
+            return output
+
+        current = self.tokens[pointer].as_dict()
+
+        if current['type'] == TokenType.SemiColon:
+            semi_colon_output = self.match(TokenType.SemiColon , pointer)
+            children.append(semi_colon_output['node'])
+
+        else:
+            semi_colon_output = None
+
+        Node = Tree('Optional Semicolon', children)
+        output["node"] = Node
+        output["index"] = semi_colon_output["index"] if semi_colon_output else pointer
+
+        return output
+
     def boolean_expression(self, pointer):
+        output = dict()
+        children = []
+
+        logical_expression_output = self.logical_expression(pointer)
+        children.append(logical_expression_output['node'])
+
+        boolean_expression_double_prime_output = self.boolean_expression_double_prime(logical_expression_output['index'])
+        children.append(boolean_expression_double_prime_output['node'])
+
+        Node = Tree('Boolean Expression', children)
+        output["node"] = Node
+        output["index"] = boolean_expression_double_prime_output["index"]
+
+        return output
+
+    def boolean_expression_double_prime(self, pointer):
+        output = dict()
+        children = []
+
+        if pointer >= len(self.tokens):
+            # Handle end of token list
+            output["node"] = ["error"]
+            output["index"] = pointer + 1
+            return output
+
+        current = self.tokens[pointer].as_dict()
+
+        if current['type'] in [TokenType.OrKeyword , TokenType.AndKeyword]:
+            boolean_expression_prime_output = self.boolean_expression_prime(pointer)
+            children.append(boolean_expression_prime_output['node'])
+        else:
+            boolean_expression_prime_output = None
+
+        Node = Tree('Boolean Expression Double Prime', children)
+        output["node"] = Node
+        output["index"] = boolean_expression_prime_output['index'] if boolean_expression_prime_output else pointer
+
+        return output
+
+    def boolean_expression_prime(self, pointer):
+        output = dict()
+        children = []
+
+        if pointer >= len(self.tokens):
+            # Handle end of token list
+            output["node"] = ["error"]
+            output["index"] = pointer + 1
+            return output
+
+        current_token = self.tokens[pointer].as_dict()
+
+        if current_token['type'] == TokenType.OrKeyword:
+            first_output = self.match(TokenType.OrKeyword , pointer)
+        else:
+            first_output = self.match(TokenType.AndKeyword , pointer)
+
+        children.append(first_output['node'])
+
+        boolean_expression_output = self.boolean_expression(first_output['index'])
+        children.append(boolean_expression_output['node'])
+
+        Node = Tree('Boolean Expression Prime', children)
+        output["node"] = Node
+        output["index"] = boolean_expression_output["index"]
+
+        return output
+
+    def logical_expression(self, pointer):
         output = dict()
         children = []
 
@@ -929,7 +1059,7 @@ class RDParser:
         expression2_output = self.expression(relational_operator_output['index'])
         children.append(expression2_output['node'])
 
-        Node = Tree('Boolean Expression', children)
+        Node = Tree('Logical Expression', children)
         output["node"] = Node
         output["index"] = expression2_output["index"]
 
@@ -1386,7 +1516,7 @@ class RDParser:
             output["index"] = pointer + 1
             return output
 
-    def remove_empty_nodes(self,node):
+    def remove_empty_nodes(self, node):
         if isinstance(node, str):
             return node
 
@@ -1405,7 +1535,6 @@ class RDParser:
         node.extend(children)
 
         return node
-
     def fail_match(self, expected, actual, pointer):
         output = dict()
         output["node"] = ["error"]

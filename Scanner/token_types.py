@@ -92,6 +92,7 @@ class TokenType(Enum):
     StringConstant = 88
     UsesKeyword = 89
     Error = 90
+    EOF = 91
 
 
 token_types_map = {token.value: token.name for token in TokenType}
