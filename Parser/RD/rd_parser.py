@@ -261,8 +261,10 @@ class RDParser:
         elif current['type'] == TokenType.TrueKeyword:
             data_output = self.match(TokenType.TrueKeyword , pointer)
 
-        else:
+        elif current['type'] == TokenType.FalseKeyword:
             data_output = self.match(TokenType.FalseKeyword , pointer)
+        else:
+            data_output = self.fail_match('Data Type Value', current, pointer)
 
         children.append(data_output['node'])
 
@@ -379,8 +381,10 @@ class RDParser:
         elif current['type'] == TokenType.BooleanKeyword:
             data_output = self.match(TokenType.BooleanKeyword , pointer)
 
-        else:
+        elif current['type'] == TokenType.Identifier:
             data_output = self.match(TokenType.Identifier , pointer)
+        else:
+            data_output = self.fail_match('Data Type', current, pointer)
 
         children.append(data_output['node'])
 
@@ -563,12 +567,15 @@ class RDParser:
             close_parenthesis_output = self.match(TokenType.CloseParenthesis , pointer)
             children.append(close_parenthesis_output['node'])
 
-        else:
+        elif current['type'] == TokenType.Identifier:
             parameter_list_output = self.parameters_list(pointer)
             children.append(parameter_list_output['node'])
 
             close_parenthesis_output = self.match(TokenType.CloseParenthesis, parameter_list_output['index'])
             children.append(close_parenthesis_output['node'])
+
+        else:
+            close_parenthesis_output = self.fail_match('Identifier or Close Parenthesis', current, pointer)
 
         Node = Tree('Parameters Prime', children)
         output["node"] = Node
@@ -722,7 +729,7 @@ class RDParser:
             elif next_token['type'] == TokenType.AssignmentOp:
                 statement_output = self.assignment(pointer)
             else:
-                return self.fail_match(TokenType.AssignmentOp,self.tokens[pointer].as_dict(),pointer)
+                statement_output = self.fail_match('Identifier Follower',self.tokens[pointer].as_dict(),pointer+1)
 
         elif current['type'] == TokenType.IfKeyword:
             statement_output = self.if_statement(pointer)
@@ -737,7 +744,7 @@ class RDParser:
             statement_output = self.while_loop(pointer)
 
         else:
-            return self.fail_match(TokenType.Identifier,self.tokens[pointer].as_dict(),pointer)
+            statement_output = self.fail_match('Statement',self.tokens[pointer].as_dict(),pointer)
 
         children.append(statement_output['node'])
 
@@ -855,8 +862,12 @@ class RDParser:
         if current['type'] == TokenType.BeginKeyword:
             current_output = self.block(pointer)
 
-        else:
+        elif current['type'] in [TokenType.ReadKeyword , TokenType.ReadlnKeyword , TokenType.WriteKeyword , TokenType.WritelnKeyword,
+            TokenType.Identifier , TokenType.IfKeyword , TokenType.ForKeyword , TokenType.RepeatKeyword , TokenType.WhileKeyword]:
             current_output = self.statement(pointer)
+
+        else:
+            current_output = self.fail_match('Statement or Block',current,pointer)
 
         children.append(current_output['node'])
         Node = Tree('Statement or Block', children)
@@ -1032,8 +1043,10 @@ class RDParser:
 
         if current_token['type'] == TokenType.OrKeyword:
             first_output = self.match(TokenType.OrKeyword , pointer)
-        else:
+        elif current_token['type'] == TokenType.AndKeyword:
             first_output = self.match(TokenType.AndKeyword , pointer)
+        else:
+            first_output = self.fail_match('Logical Connective' , current_token , pointer)
 
         children.append(first_output['node'])
 
@@ -1092,8 +1105,10 @@ class RDParser:
         elif current['type'] == TokenType.LessThanOrEqualOp:
             relational_operator_output = self.match(TokenType.LessThanOrEqualOp , pointer)
 
-        else:
+        elif current['type'] == TokenType.GreaterThanOrEqualOp:
             relational_operator_output = self.match(TokenType.GreaterThanOrEqualOp , pointer)
+        else:
+            relational_operator_output = self.fail_match('Relational Operator' , current , pointer)
 
         children.append(relational_operator_output['node'])
         Node = Tree('Relational Operator', children)
@@ -1126,8 +1141,10 @@ class RDParser:
         elif current['type'] == TokenType.WritelnKeyword:
             first_output = self.match(TokenType.WritelnKeyword , pointer)
 
-        else:
+        elif current['type'] == TokenType.WriteKeyword:
             first_output = self.match(TokenType.WriteKeyword , pointer)
+        else:
+            first_output = self.fail_match('Procedure Call' , current , pointer)
 
         children.append(first_output['node'])
 
@@ -1364,10 +1381,13 @@ class RDParser:
             final_output = self.match(TokenType.CloseParenthesis , expression_output['index'])
             children.append(final_output['node'])
 
-        else:
+        elif current['type'] in [TokenType.IntegerConstant, TokenType.RealConstant, TokenType.StringConstant, TokenType.TrueKeyword , TokenType.FalseKeyword]:
             #final_output = self.number(pointer)
             final_output = self.data_type_values(pointer)
             children.append(final_output['node'])
+
+        else:
+            final_output = self.fail_match('Factor', current,pointer)
 
         Node = Tree('Factor', children)
         output["node"] = Node
@@ -1487,9 +1507,13 @@ class RDParser:
 
         if current['type'] == TokenType.CloseParenthesis:
             argument_list_output = None
-        else:
+        elif current['type'] in [TokenType.Identifier, TokenType.IntegerConstant, TokenType.RealConstant, TokenType.StringConstant,
+                                 TokenType.TrueKeyword , TokenType.FalseKeyword, TokenType.OpenParenthesis]:
             argument_list_output = self.expression_list(pointer)
             children.append(argument_list_output['node'])
+
+        else:
+            argument_list_output = self.fail_match('Argument List', current,pointer)
 
 
         Node = Tree('Argument List', children)
@@ -1500,22 +1524,6 @@ class RDParser:
 
 
     ########################################################################################
-    def match(self, current_token_type, pointer):
-        output = dict()
-        if pointer < len(self.tokens):
-            temp = self.tokens[pointer].as_dict()
-            if temp['type'] == current_token_type:
-                pointer += 1
-                output["node"] = [temp['lexeme']]
-                output["index"] = pointer
-                return output
-            else:
-                return self.fail_match(current_token_type, temp, pointer)
-        else:
-            output["node"] = ["error"]
-            output["index"] = pointer + 1
-            return output
-
     def remove_empty_nodes(self, node):
         if isinstance(node, str):
             return node
@@ -1535,11 +1543,27 @@ class RDParser:
         node.extend(children)
 
         return node
+
+    def match(self, expected_token_type, pointer):
+        output = dict()
+        if pointer < len(self.tokens):
+            actual_token_type = self.tokens[pointer].as_dict()
+            if actual_token_type['type'] == expected_token_type:
+                pointer += 1
+                output["node"] = [actual_token_type['lexeme']]
+                output["index"] = pointer
+                return output
+            else:
+                return self.fail_match(expected_token_type.name, actual_token_type, pointer)
+        else:
+            output["node"] = ["error"]
+            output["index"] = pointer + 1
+            return output
     def fail_match(self, expected, actual, pointer):
         output = dict()
         output["node"] = ["error"]
         output["index"] = pointer
-        self.errors.append("Syntax error : " + actual['lexeme'] + "Expected " + token_types_map[expected.value])
+        self.errors.append("Syntax error found : " + actual['lexeme'] + " but Expected " + expected )
         return output
 
     ########################################################################################

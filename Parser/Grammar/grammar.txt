@@ -7,7 +7,7 @@ Identifiers_List_Prime -> , Identifiers_List | ~
 Constant_Declarations -> const Constant_Definitions | ~
 Constant_Definitions -> identifier = Data_Type_Values ; Constant_Definitions_Prime
 Constant_Definitions_Prime -> Constant_Definitions | ~
-Data_Type_Values -> integer_constant | real_constant | character_constant | string_constant | true | false
+Data_Type_Values -> integer_constant | real_constant | string_constant | true | false
 Type_Declarations -> type Type_Definitions | ~
 Type_Definitions -> identifier = Data_Type ; Type_Definitions_Prime
 Type_Definitions_Prime -> Type_Definitions | ~

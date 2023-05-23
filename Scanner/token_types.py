@@ -96,3 +96,4 @@ class TokenType(Enum):
 
 
 token_types_map = {token.value: token.name for token in TokenType}
+
