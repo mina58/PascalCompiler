@@ -9,11 +9,11 @@ import re
 class Scanner:
     def __init__(self) -> None:
         self.__identifier_regex = "^[a-z_\$][a-z\d_\$]*$"
-        self.__integer_regex = "^[+-]?\d+$"
-        self.__real_regex = "^[+-]?\d+.\d+(e[+-]\d+)?$"
+        self.__integer_regex = "^\d+$"
+        self.__real_regex = "^\d+.\d+(e\d+)?$"
         # in some cases there are no space between the operators and the identifiers so we will use this regex to scan
         # for the operators
-        self.__operators_regex = "\:\=|\<\>|\>\=|\<\=|\~|\*|\/|\+|\-|\&|\||\!|\:\=|\{|\}|\(|\)|\[|\]|\,|\;|\:|\"|\'|\=|\>|\<"
+        self.__operators_regex = "\:\=|\<\>|\>\=|\<\=|\~|\*|\/|\+|\-|\&|\||\!|\{|\}|\(|\)|\[|\]|\,|\;|\:|\"|\'|\=|\>|\<"
         self.__comments_regex = '\{.*\}|\{\*(.|\n)*\*\}'
         self.__string_regex = "\'.*\'"
 
