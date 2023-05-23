@@ -1,6 +1,6 @@
 import unittest
 
-from Grammar.grammar import Grammar
+from Parser.Grammar.grammar import Grammar
 class TestGrammar(unittest.TestCase):
 
     def test_valid_grammar_file(self):
