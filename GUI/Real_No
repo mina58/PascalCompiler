@@ -1,0 +1,27 @@
+
+                digraph finite_state_machine {
+                    rankdir=LR;
+                    size="8,5"
+                    node [shape = doublecircle]; q4,q6 ;
+                    node [shape = circle];
+                    node [start = true]; q1 ;
+                    q0 [shape = point];
+                    q0->q1 [label = " "];
+                    q1 -> q2 [label = "[0-9]"];
+                    q1 -> q7 [label = "any other char"];
+                    q2 -> q3 [label = "."];
+                    q2 -> q7 [label = "any other char"];
+                    q3-> q4 [label = "[0-9]"];
+                    q3-> q7 [label = "any other char"];
+                    q4 -> q4 [label = "[0-9]"];
+                    q4-> q5 [label = "e"];
+                    q4-> q7 [label = "any other char"];
+                    q5-> q6 [label = "[0-9]"];
+                    q5-> q7 [label = "any other char"];
+                    q6-> q6 [label = "[0-9]"];
+                    q6-> q7 [label = "any other char"];
+                    q7 -> q7 [label = "any other char"];
+                    q2->q2 [label = "[0-9]"];
+                    
+                }
+                

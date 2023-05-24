@@ -1,0 +1,17 @@
+
+                digraph finite_state_machine {
+                    rankdir=LR;
+                    size="8,5"
+                    node [shape = doublecircle]; q3 ;
+                    node [shape = circle];
+                    q0[shape = point]
+                    q0->q1 [label = " "];
+                    q1 -> q2 [label = "'"];
+                    q2 -> q3 [label = ","];
+                    q1 -> reject [label = "any other char"];
+                    reject -> reject [label = "any other char"];
+                    q3-> reject [label = "any other char"];
+                    q2->q2 [label = "any other char"];
+                    
+                }
+                

@@ -1,0 +1,15 @@
+
+                    digraph finite_statemachine {
+                        rankdir=LR;
+                        size="8,5"
+                        node [shape = doublecircle]; q2 ;
+                        node [shape = circle];
+                        q0[shape = point]
+                        q0->q1 [label = " "];
+                        q1 -> q2 [label = "[a-z],_,$"];
+                        q1 -> reject [label = "any other char"];
+                        q2 -> q2 [label = "[a-z],_,[0-9],$"];
+                        q2 -> reject [label = "any other char"];
+                        reject ->reject [label = "any other char"];
+                    }
+                    

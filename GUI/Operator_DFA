@@ -1,0 +1,30 @@
+
+             digraph finite_state_machine {
+    rankdir=LR;
+    size="8,5";
+    node [shape = doublecircle]; q2,q3,q4,q5,q6,q7,q8;
+    node [shape = circle];
+    q0[shape = point]
+    q0->q1 [label = " "];
+    q1 -> q2 [label = "\:"];
+    q2 -> q3 [label = "\="];
+    q3 -> reject [label = "any other char"];
+
+    q1 -> q4 [label = "\<"];
+    q4 -> q5 [label = "\>,\="];
+    q5 -> reject [label = "any other char"];
+
+    q1 -> q6 [label = "\>"];
+    q6 -> q7 [label = "\="];
+    q7 -> reject [label = "any other char"];
+
+    q1 -> q8 [label = "\~,\*,\/,\+,\-,\&,\|,\!,\{,\},\(,\),\[, \],'',\=,\,"];
+    q1 -> reject [label = "any other char"];
+
+    q2 -> reject [label = "any other char"];
+    q4 -> reject [label = "any other char"];
+    q6 -> reject [label = "any other char"];
+    q8 -> reject [label = "any other char"];
+}
+
+                
