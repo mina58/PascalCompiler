@@ -49,6 +49,7 @@ class ParserTest(unittest.TestCase):
         parser = RDParser(tokens)
         try:
             result = parser.parse()
+            display_error_list(parser.errors)
             draw_nltk_tree(result)
             result.pretty_print()
         except Exception as e:
@@ -62,6 +63,7 @@ class ParserTest(unittest.TestCase):
         parser = RDParser(tokens)
         try:
             result = parser.parse()
+            display_error_list(parser.errors)
             draw_nltk_tree(result)
             result.pretty_print()
         except Exception as e:
@@ -74,6 +76,7 @@ class ParserTest(unittest.TestCase):
         parser = RDParser(tokens)
         try:
             result = parser.parse()
+            display_error_list(parser.errors)
             draw_nltk_tree(result)
             result.pretty_print()
         except Exception as e:
@@ -86,6 +89,7 @@ class ParserTest(unittest.TestCase):
         parser = RDParser(tokens)
         try:
             result = parser.parse()
+            display_error_list(parser.errors)
             draw_nltk_tree(result)
             result.pretty_print()
         except Exception as e:
@@ -98,6 +102,7 @@ class ParserTest(unittest.TestCase):
         parser = RDParser(tokens)
         try:
             result = parser.parse()
+            display_error_list(parser.errors)
             draw_nltk_tree(result)
             result.pretty_print()
         except Exception as e:
@@ -110,6 +115,7 @@ class ParserTest(unittest.TestCase):
         parser = RDParser(tokens)
         try:
             result = parser.parse()
+            display_error_list(parser.errors)
             draw_nltk_tree(result)
             result.pretty_print()
         except Exception as e:
@@ -124,18 +130,7 @@ class ParserTest(unittest.TestCase):
         parser = RDParser(tokens)
         try:
             result = parser.parse()
-            draw_nltk_tree(result)
-            result.pretty_print()
-        except Exception as e:
-            print(f"Exception occurred during parsing: {e}")
-
-    def test_empty_block(self):
-        source_code = "program test; begin end."
-        scanner = Scanner()
-        tokens = scanner.scan(source_code)
-        parser = RDParser(tokens)
-        try:
-            result = parser.parse()
+            display_error_list(parser.errors)
             draw_nltk_tree(result)
             result.pretty_print()
         except Exception as e:
@@ -148,6 +143,7 @@ class ParserTest(unittest.TestCase):
         parser = RDParser(tokens)
         try:
             result = parser.parse()
+            display_error_list(parser.errors)
             draw_nltk_tree(result)
             result.pretty_print()
         except Exception as e:
@@ -160,6 +156,7 @@ class ParserTest(unittest.TestCase):
         parser = RDParser(tokens)
         try:
             result = parser.parse()
+            display_error_list(parser.errors)
             draw_nltk_tree(result)
             result.pretty_print()
         except Exception as e:
@@ -172,6 +169,7 @@ class ParserTest(unittest.TestCase):
         parser = RDParser(tokens)
         try:
             result = parser.parse()
+            display_error_list(parser.errors)
             draw_nltk_tree(result)
             result.pretty_print()
         except Exception as e:
@@ -199,6 +197,7 @@ class ParserTest(unittest.TestCase):
         parser = RDParser(tokens)
         try:
             result = parser.parse()
+            display_error_list(parser.errors)
             draw_nltk_tree(result)
             result.pretty_print()
         except Exception as e:
@@ -219,6 +218,7 @@ class ParserTest(unittest.TestCase):
         parser = RDParser(tokens)
         try:
             result = parser.parse()
+            display_error_list(parser.errors)
             draw_nltk_tree(result)
             result.pretty_print()
         except Exception as e:
@@ -239,6 +239,66 @@ class ParserTest(unittest.TestCase):
         parser = RDParser(tokens)
         try:
             result = parser.parse()
+            display_error_list(parser.errors)
+            draw_nltk_tree(result)
+            result.pretty_print()
+        except Exception as e:
+            print(f"Exception occurred during parsing: {e}")
+
+    #test case provided by TA
+    def test_case_2(self):
+        source_code = '''program nested_ifelseChecking;
+                var
+                   { local variable definition }
+                   a, b : integer;
+                
+                begin
+                   a := 100;
+                   b:= 200;
+                   
+                   { check the boolean condition }
+                   if (a = 100) then
+                      { if condition is true then check the following }
+                      if ( b = 200 ) then
+                         { if nested if condition is true  then print the following }
+                         writeln('Value of a is 100 and value of b is 200' );
+                   
+                   writeln('Exact value of a is: ', a );
+                   writeln('Exact value of b is: ', b );
+                end.'''
+        scanner = Scanner()
+        tokens = scanner.scan(source_code)
+        parser = RDParser(tokens)
+        try:
+            result = parser.parse()
+            display_error_list(parser.errors)
+            draw_nltk_tree(result)
+            result.pretty_print()
+        except Exception as e:
+            print(f"Exception occurred during parsing: {e}")
+
+
+    def test_case_6(self):
+        source_code = '''program exString;
+                var
+                   greetings: string;
+                   name: string;
+                   x: integer;
+                
+                begin
+                   greetings := 'Hello ';
+                   x := 1;
+                   
+                   writeln('Please Enter the name of your Organisation');
+                   readln(name);
+                   
+                end.'''
+        scanner = Scanner()
+        tokens = scanner.scan(source_code)
+        parser = RDParser(tokens)
+        try:
+            result = parser.parse()
+            display_error_list(parser.errors)
             draw_nltk_tree(result)
             result.pretty_print()
         except Exception as e:
@@ -253,6 +313,7 @@ class ParserTest(unittest.TestCase):
         parser = RDParser(tokens)
         try:
             result = parser.parse()
+            display_error_list(parser.errors)
             draw_nltk_tree(result)
             result.pretty_print()
         except Exception as e:
@@ -277,6 +338,7 @@ class ParserTest(unittest.TestCase):
         parser = RDParser(tokens)
         try:
             result = parser.parse()
+            display_error_list(parser.errors)
             draw_nltk_tree(result)
             result.pretty_print()
         except Exception as e:
@@ -289,6 +351,7 @@ class ParserTest(unittest.TestCase):
         parser = RDParser(tokens)
         try:
             result = parser.parse()
+            display_error_list(parser.errors)
             draw_nltk_tree(result)
             result.pretty_print()
         except Exception as e:
@@ -301,6 +364,7 @@ class ParserTest(unittest.TestCase):
         parser = RDParser(tokens)
         try:
             result = parser.parse()
+            display_error_list(parser.errors)
             draw_nltk_tree(result)
             result.pretty_print()
         except Exception as e:
@@ -313,6 +377,7 @@ class ParserTest(unittest.TestCase):
         parser = RDParser(tokens)
         try:
             result = parser.parse()
+            display_error_list(parser.errors)
             draw_nltk_tree(result)
             result.pretty_print()
         except Exception as e:
@@ -325,12 +390,56 @@ class ParserTest(unittest.TestCase):
         parser = RDParser(tokens)
         try:
             result = parser.parse()
+            display_error_list(parser.errors)
             draw_nltk_tree(result)
             result.pretty_print()
         except Exception as e:
             print(f"Exception occurred during parsing: {e}")
 
+    def test_empty_block(self):
+        source_code = "program test; begin end."
+        scanner = Scanner()
+        tokens = scanner.scan(source_code)
+        parser = RDParser(tokens)
+        try:
+            result = parser.parse()
+            display_error_list(parser.errors)
+            draw_nltk_tree(result)
+            result.pretty_print()
+        except Exception as e:
+            print(f"Exception occurred during parsing: {e}")
 
+    def test_case_1(self):
+        source_code = '''program forLoop;
+                    {This is a program to test loops}
+                    var
+                       a: integer;
+                       a2: integer;
+                    
+                    begin
+                       for a := 10  to 20 do 
+                          writeln('value of a: ', a);
+                    
+                     a2 := 10;
+                       { repeat until loop execution }
+                       repeat
+                          writeln('value of a: ', a);
+                          a2 := a2 + 1
+                       until a2 = 20;
+                    
+                    end.
+                    
+                    '''
+        scanner = Scanner()
+        tokens = scanner.scan(source_code)
+        parser = RDParser(tokens)
+        try:
+            result = parser.parse()
+            display_error_list(parser.errors)
+            draw_nltk_tree(result)
+            result.pretty_print()
+        except Exception as e:
+            print(f"Exception occurred during parsing: {e}")
 
 
 

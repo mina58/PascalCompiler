@@ -1,0 +1,14 @@
+program exString;
+var
+   greetings: string;
+   name: string;
+   x: integer;
+
+begin
+   greetings := 'Hello ';
+   x := 1;
+   
+   writeln('Please Enter the name of your Organisation');
+   readln(name);
+   
+end.
