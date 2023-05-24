@@ -8,8 +8,6 @@ from Scanner.scanner import Scanner
 from Parser.RD.test_rd import draw_nltk_tree,display_error_list
 window_bg = "#576F72"
 button = "#D0C9C0"
-Error = ["error1", "error2", "error3", "error4", "error5",
-         "error6"]
 
 
 def Identifier():
@@ -178,7 +176,7 @@ def String():
                     q0[shape = point]
                     q0->q1 [label = " "];
                     q1 -> q2 [label = "'"];
-                    q2 -> q3 [label = ","];
+                    q2 -> q3 [label = "'"];
                     q1 -> reject [label = "any other char"];
                     reject -> reject [label = "any other char"];
                     q3-> reject [label = "any other char"];
@@ -266,16 +264,6 @@ def Scan(sourceCode):
     tree = parser.parse()
     display_error_list(parser.errors)
     draw_nltk_tree(tree)
-    # S_window = tk.Toplevel()
-    # S_window.geometry("600x400")
-    # S_window.config(bg=window_bg)
-    # S_window.title("Scan Window")
-    # error = tk.Label(S_window, text="Error List: ", bg=window_bg, font=("Arial", 15))
-    # error.grid(row=0, column=0, columnspan=2)
-    # listbox = tk.Listbox(S_window, font=("Arial", 10, "bold"), borderwidth=0, width=25, height=10)
-    # listbox.grid(row=1, column=0)
-    # for i in range(len(Error)):
-    #     listbox.insert(i, Error[i])
 
 def Parser():
     window_Pars = tk.Toplevel()

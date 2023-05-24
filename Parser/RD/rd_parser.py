@@ -784,10 +784,16 @@ class RDParser:
         if_output = self.match(TokenType.IfKeyword , pointer)
         children.append(if_output['node'])
 
-        boolean_expression_output = self.boolean_expression(if_output['index'])
+        open_parenthesis_output = self.match(TokenType.OpenParenthesis , if_output['index'])
+        children.append(open_parenthesis_output['node'])
+
+        boolean_expression_output = self.boolean_expression(open_parenthesis_output['index'])
         children.append(boolean_expression_output['node'])
 
-        then_output = self.match(TokenType.ThenKeyword , boolean_expression_output['index'])
+        close_parenthesis_output = self.match(TokenType.CloseParenthesis , boolean_expression_output['index'])
+        children.append(close_parenthesis_output['node'])
+
+        then_output = self.match(TokenType.ThenKeyword , close_parenthesis_output['index'])
         children.append(then_output['node'])
 
         if_prime_output = self.if_statement_prime(then_output['index'])

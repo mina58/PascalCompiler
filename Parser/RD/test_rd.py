@@ -56,7 +56,7 @@ class ParserTest(unittest.TestCase):
 
 
     def test_if_statement(self):
-        source_code = "program test; begin if a = b then x := y + z; end."
+        source_code = "program test; begin if (a = b) then x := y + z; end."
         scanner = Scanner()
         tokens = scanner.scan(source_code)
         parser = RDParser(tokens)
@@ -68,7 +68,7 @@ class ParserTest(unittest.TestCase):
             print(f"Exception occurred during parsing: {e}")
 
     def test_if_else_statement(self):
-        source_code = "program test; begin if a = b then x := y + z; else x := y - z; end."
+        source_code = "program test; begin if (a = b) then x := y + z; else x := y - z; end."
         scanner = Scanner()
         tokens = scanner.scan(source_code)
         parser = RDParser(tokens)
@@ -183,10 +183,10 @@ class ParserTest(unittest.TestCase):
         var x, y, z: integer;
         begin
             x := 1;
-            if x = 1 then
+            if (x = 1) then
             begin
                 y := 2;
-                if y = 2 then
+                if (y = 2) then
                 begin
                     z := x + y;
                     writeln(z);
@@ -208,7 +208,7 @@ class ParserTest(unittest.TestCase):
         source_code = '''
         program test;
         begin
-            if a = 1 and b = 2 then
+            if (a = 1 and b = 2) then
             begin
                 x := 1;
             end;
@@ -228,7 +228,7 @@ class ParserTest(unittest.TestCase):
         source_code = '''
         program test;
         begin
-            if a = 1 or b = 2 then
+            if (a = 1 or b = 2) then
             begin
                 x := 1;
             end;

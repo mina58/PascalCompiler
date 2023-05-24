@@ -27,7 +27,7 @@ Statement_List -> Statement Statement_List_Prime
 Statement_List_Prime -> Statement_List | ~
 Statement -> Assignment_Statement | IF_Statement | For_Loop | Repeat | While_Loop | Procedure_Call
 Assignment_Statement -> identifier := Expression ;
-IF_Statement -> if Boolean_Expression then IF_Statement_Prime Optional_Semicolon
+IF_Statement -> if ( Boolean_Expression ) then IF_Statement_Prime Optional_Semicolon
 IF_Statement_Prime -> Statement_or_Block IF_Statement_Double_Prime
 IF_Statement_Double_Prime -> else Statement_or_Block | ~
 Statement_or_Block -> Statement | Block

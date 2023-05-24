@@ -13,7 +13,7 @@ class Scanner:
         self.__real_regex = "^\d+.\d+(e\d+)?$"
         # in some cases there are no space between the operators and the identifiers so we will use this regex to scan
         # for the operators
-        self.__operators_regex = "\:\=|\<\>|\>\=|\<\=|\~|\*|\/|\+|\-|\&|\||\!|\{|\}|\(|\)|\[|\]|\,|\;|\:|\"|\'|\=|\>|\<"
+        self.__operators_regex = "\:\=|\<\>|\>\=|\<\=|\~|\*|\/|\+|\-|\&|\||\!|\{|\}|\(|\)|\[|\]|\,|\;|\:|\"|\'|\=|\>|\<|\."
         self.__comments_regex = '\{.*\}|\{\*(.|\n)*\*\}'
         self.__string_regex = "\'.*\'"
 
@@ -46,7 +46,6 @@ class Scanner:
             string_tokens.append(token)
 
         return string_tokens
-
 
 
     def scan(self, source_code: str) -> list:
