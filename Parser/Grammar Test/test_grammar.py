@@ -31,7 +31,7 @@ class TestGrammar(unittest.TestCase):
             'character_constant', 'string_constant', 'true', 'false', 'type', 'var', ':', 'function',
             '(', 'integer', 'string', 'char', 'boolean', 'real', 'begin', 'end', 'if', 'then', 'else',
             'for', 'to', 'do', 'repeat', 'until', 'read', 'readln', 'write', 'writeln', '.',
-            '>=', '+', '<>', '/','procedure', '-', ':=', '<=', '*', '>', '<', ')'
+            '>=', '+', '<>', '/','procedure', '-', ':=', '<=', '*', '>', '<', ')', 'program'
         }
 
         assert grammar.terminals == expected_terminals, "Invalid terminals"
@@ -41,7 +41,7 @@ class TestGrammar(unittest.TestCase):
                 ('Heading', 'Declaration', 'Execution')
             },
             'Heading': {
-                ('Program', 'identifier', ';')
+                ('program', 'identifier', ';')
             },
             'Declaration': {
                 ('Uses', 'Constant_Declarations', 'Type_Declarations', 'Variable_Declarations',

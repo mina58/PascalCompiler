@@ -1,5 +1,5 @@
 Program -> Heading Declaration Execution
-Heading -> Program identifier ;
+Heading -> program identifier ;
 Declaration -> Uses Constant_Declarations Type_Declarations Variable_Declarations Functions_Declarations Procedures_Declarations
 Uses -> uses Identifiers_List ; | ~
 Identifiers_List -> identifier Identifiers_List_Prime

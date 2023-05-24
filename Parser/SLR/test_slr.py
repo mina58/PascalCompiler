@@ -4,15 +4,10 @@ from nltk.draw.util import CanvasFrame
 from Scanner.scanner import Scanner
 from Parser.SLR.slr_parser import SLRParser
 import unittest
-
+import traceback
 
 def draw_nltk_tree(tree):
-    cf = CanvasFrame()
-    tc = TreeWidget(cf.canvas(), tree)
-    cf.add_widget(tc, 10, 10)
-    cf.print_to_file('tree.ps')
-    cf.destroy()
-    nltk.draw.tree.draw_trees(tree)
+    tree.draw()
 
 
 class SLRParserTest(unittest.TestCase):
@@ -29,11 +24,10 @@ class SLRParserTest(unittest.TestCase):
         try:
             parse_tree = parser.parse(tokens)
             print(parse_tree)
-            print(parser.parsing_table)
             draw_nltk_tree(parse_tree)
         except Exception as e:
-            print(f"Exception occurred during parsing: {e}")
-        # Print the parse tree
+            traceback.print_exc()
+            # print(f"Exception occurred during parsing: {e}")
 
     def test_parsing_table(self):
         # Create a grammar

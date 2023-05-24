@@ -17,7 +17,8 @@ class Grammar:
                     self.start = head
 
                 #make sure that head exists in the grammar , if not initialize it with empty set
-                self.grammar[head] = self.grammar.get(head, set())
+                if head not in self.grammar:
+                    self.grammar[head] = set()
 
                 self.non_terminals.add(head)
 
@@ -49,7 +50,3 @@ class Grammar:
 
     def get_productions(self, non_terminal):
         return self.grammar[non_terminal]
-
-
-
-
