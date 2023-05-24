@@ -1,3 +1,5 @@
+import traceback
+
 from Parser.Grammar.grammar import Grammar
 from Scanner.token import Token
 from Scanner.token_types import TokenType
@@ -12,55 +14,60 @@ class SLRParser:
     def build_parsing_table(self):
         self.parsing_table = {}
 
-        #get the closure of the initial LR(0) state
+        # get the closure of the initial LR(0) state
         start_production = list(self.grammar.get_productions(self.grammar.start))[0]
-        #we create a set of the initial state , G -> .S , 0 where 0 is the dot position
+        # we create a set of the initial state , G -> .S , 0 where 0 is the dot position
         initial_state = frozenset([(self.grammar.start, start_production, 0)])
-        initial_closure = self.closure(initial_state) # set of all possible states that can be reached from the initial state
+        initial_closure = self.closure(initial_state)  # set of all possible states that can be reached from the initial state
 
-        #Initialize the parsing table
+        # print(f"Initial Closure: {initial_closure}")
+
+        # Initialize the parsing table
         for state in initial_closure:
             self.parsing_table[state] = {}
 
-        #Process each state in the parsing table
+        # Process each state in the parsing table
         for state in self.parsing_table.keys():
             for symbol in self.grammar.symbols:
                 if symbol != '~':
-                    #Compute the goto state
+                    # Compute the goto state
                     goto_state = self.goto(state, symbol)
 
                     if goto_state:
-                        #Shift action
-                        self.parsing_table[state][symbol] = ('shift', goto_state)
+                        # Shift action
+                        if symbol in self.grammar.symbols and symbol != '~':
+                            self.parsing_table[state][symbol] = ('shift', goto_state)
 
             # Reduce action
             head = state[0]
             body = state[1]
             dot_position = state[2]
-            #production is a tuple of (head, body, dot_position)
+            # production is a tuple of (head, body, dot_position)
             # head -> body . , dot position at the end of the body
             if dot_position == len(body):
-                #if the dot position is at the end of the body means that we have reached the end of the production
+                # if the dot position is at the end of the body means that we have reached the end of the production
                 # accept action
-
 
                 for follow_symbol in self.follow(head):
                     if follow_symbol in self.parsing_table[state]:
-                        #if the follow symbol is already in the parsing table
+                        # if the follow symbol is already in the parsing table
                         # Conflict check: ensure no shift-reduce or reduce-reduce conflicts
                         existing_action = self.parsing_table[state][follow_symbol]
                         if existing_action[0] != 'reduce' or existing_action[1] != (head, body, dot_position):
-                            #if the existing action is not reduce or the existing action is not the same as the current production
-                            #then we have a conflict
+                            # if the existing action is not reduce or the existing action is not the same as the current production
+                            # then we have a conflict
                             raise Exception(f'Conflict in state {state} for symbol {follow_symbol}.')
                         else:
                             continue
                     # Reduce action
                     self.parsing_table[state][follow_symbol] = ('reduce', (head, body, dot_position))
-        #handle the accept action
+
+        # print(f"Parsing Table: {self.parsing_table}")
+
+        # handle the accept action
         if self.grammar.start in self.parsing_table and '$' in self.parsing_table[self.grammar.start]:
-            #if the start symbol is in the parsing table and the end of input symbol is in the parsing table
-            #then we have an accept action
+            # if the start symbol is in the parsing table and the end of input symbol is in the parsing table
+            # then we have an accept action
             self.parsing_table[self.grammar.start]['$'] = ('accept', None)
         return self.parsing_table
 
@@ -142,6 +149,7 @@ class SLRParser:
         tokens.append(Token('$', TokenType.EOF))
 
         pointer = 0  # pointer to the current token
+
         # create the parse tree
         parse_tree = Tree('Program', [])
 
@@ -149,9 +157,13 @@ class SLRParser:
             while True:
                 state = self.stack[-1]  # FILO mode
                 current_token = tokens[pointer].as_dict()
-                action = self.parsing_table[state].get(current_token['type'])
+                action = self.parsing_table[state].get(current_token['type'], None)
                 # get the action from the parsing table by the current state and the current token
                 # action is a tuple of (action_type, action_value)
+
+                # print(f"Current token: {current_token['lexeme']}")
+                # print(f"Current state: {state}")
+                # print(f"Action: {action}")
 
                 if not action:
                     raise Exception(f'Unexpected token {current_token["lexeme"]} at index {pointer}.')
@@ -164,9 +176,6 @@ class SLRParser:
                     # shift the current token to the stack and move the pointer to the next token
                     self.stack.append(action_value)
                     pointer += 1
-                    # create a node in the parse tree for the shifted token
-                    token_node = Tree(current_token['type'], [current_token['lexeme']])
-                    parse_tree.append(token_node)
 
                 elif action_type == 'reduce':
                     head, body, dot_position = action_value
@@ -200,8 +209,12 @@ class SLRParser:
                 if pointer >= len(tokens):
                     raise Exception('Unexpected end of input.')
 
+                # print(f"Stack: {self.stack}")
+
         except Exception as e:
-            print()
+            #print traceback
+            traceback.print_exc()
+            print(f"Exception occurred during parsing: {e}")
 
         return parse_tree
 
