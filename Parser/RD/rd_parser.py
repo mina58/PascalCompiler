@@ -1,4 +1,4 @@
-from Scanner.token_types import TokenType, token_types_map
+from Scanner.token_types import TokenType
 from nltk.tree import *
 
 
