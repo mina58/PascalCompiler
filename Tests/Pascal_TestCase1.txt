@@ -1,0 +1,19 @@
+program forLoop;
+{This is a program to test loops}
+var
+   a: integer;
+   a2: integer;
+
+begin
+   for a := 10  to 20 do 
+      writeln('value of a: ', a);
+
+ a2 := 10;
+   { repeat until loop execution }
+   repeat
+      writeln('value of a: ', a);
+      a2 := a2 + 1
+   until a2 = 20;
+
+end.
+

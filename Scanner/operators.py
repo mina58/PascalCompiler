@@ -1,4 +1,4 @@
-from .token_types import TokenType
+from Scanner.token_types import TokenType
 
 
 operators = {

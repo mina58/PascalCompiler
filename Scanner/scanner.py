@@ -1,7 +1,7 @@
-from .token_types import TokenType
-from .operators import operators
-from .reserved_words import reserved_words
-from .token import Token
+from Scanner.token_types import TokenType
+from Scanner.operators import operators
+from Scanner.reserved_words import reserved_words
+from Scanner.token import Token
 
 import re
 
@@ -11,7 +11,7 @@ class Scanner:
         self.__identifier_regex = "^[a-z_\$][a-z\d_\$]*$"
         self.__integer_regex = "^\d+$"
         self.__real_regex = "^\d+.\d+(e\d+)?$"
-        # in some cases there are no space between the operators and the identifiers so we will use this regex to scan
+        # in some cases there are no space between the operators and the identifiers, so we will use this regex to scan
         # for the operators
         self.__operators_regex = "\:\=|\<\>|\>\=|\<\=|\~|\*|\/|\+|\-|\&|\||\!|\{|\}|\(|\)|\[|\]|\,|\;|\:|\"|\'|\=|\>|\<|\."
         self.__comments_regex = '\{.*\}|\{\*(.|\n)*\*\}'

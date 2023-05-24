@@ -1,4 +1,4 @@
-from .token_types import TokenType
+from Scanner.token_types import TokenType
 
 class Token:
     def __init__(self, lexeme: str, token_type: TokenType) -> None:
